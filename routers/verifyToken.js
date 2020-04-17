@@ -5,8 +5,8 @@ exports.auth = (req,res,next) => {
     if(!token) return res.status(401).send('Acceso denegado')
 
     try{
-        console.log(token)
-        console.log(process.env.TOKEN_SECRETO)
+        //console.log(token)
+        //console.log(process.env.TOKEN_SECRETO)
         const verificado = jwt.verify(token, process.env.TOKEN_SECRETO)
         req.user = verificado
         console.log(verificado)

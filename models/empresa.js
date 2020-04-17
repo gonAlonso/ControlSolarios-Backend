@@ -1,5 +1,7 @@
 let mongoose = require('mongoose');
 
+var Solario = require('./solario')
+
 let Schema = mongoose.Schema;
 
 let EmpresaSchema = Schema(
@@ -24,7 +26,10 @@ let EmpresaSchema = Schema(
             default: "SESIONES"
         },
         operarios: [],
-        solarios: []
+        solarios:[{
+            type: Schema.ObjectId,
+            ref:'Solario'
+        }]
     }
 )
 

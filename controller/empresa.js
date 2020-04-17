@@ -1,6 +1,7 @@
 
 //var Puntuacion = require('../models/puntuacion')
 var Empresa = require('../models/empresa')
+var Solario = require('../models/solario')
 var mongoose = require('mongoose');
 const Joi = require('@hapi/joi')
 const bcrypt = require('bcrypt')
@@ -24,8 +25,7 @@ const schemaRegister = Joi.object({
     tlf: Joi.string().min(9).required(),
     direccion: Joi.string().min(10).max(255).required(),
     email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: true }}).required(),
-    password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{10,30}$')).required(),
-    repeat_password: Joi.ref('password'), 
+    password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{10,30}$')).required()
   })
 
 const schemaLogin= Joi.object({
@@ -34,6 +34,16 @@ const schemaLogin= Joi.object({
   })
 
  
+const schemaUpdate = Joi.object({
+    nombre: Joi.string().min(1).max(255).optional(),
+    nombreFiscal: Joi.string().min(1).max(255).optional(),
+    cif: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{9}$' )).optional(),
+    tlf: Joi.string().min(9).optional(),
+    direccion: Joi.string().min(10).max(255).optional(),
+    email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: true }}).optional(),
+    newPassword: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{10,30}$')).optional(),
+    oldPassword: Joi.ref('password')
+  })
 
 /*********************************************
 * Funcionalidades implementadas
@@ -68,7 +78,6 @@ async function register(req, res){
     empresa.password = hashPassword
 
     empresa.operarios = []
-    empresa.solarios = []
     empresa.fechaRegistro = new Date()
     try{
         let empregisterresaGuardada = await empresa.save();
@@ -102,19 +111,55 @@ async function login(req, res){
     const token = jwt.sign( 
         {
             _id: empresaExistente._id, 
-            exp: Math.floor(Date.now() / 1000) + (60 * 60) * 12 //1 hora
+            exp: Math.floor(Date.now() / 1000) + (60 * 60), //1 hora
         }, 
         process.env.TOKEN_SECRETO )
     res.header('auth-token', token)
 
     res.status(200).send({token}) 
+
 }
+
+
+async function update(req,res){
+
+    // Validar datos de la empresa
+    try {
+        const { error, value } = await schemaUpdate.validateAsync(req.body)
+        console.log(value)
+        console.log(error)
+
+    }
+    catch (err) { 
+        return res.status(400).json({accion:'register', mensaje:'error al validar los datos de la empresa: '+err}) 
+    }
+
+    try{
+        const token = req.user
+        let empresaActualizada = await Empresa.findOneAndUpdate({_id:token._id}, req.body, {new:true});
+        res.status(200).json({accion:'update', datos: empresaActualizada}) 
+    }catch(err){
+        res.status(500).json({accion:'update', mensaje:'error al actualizar datos de la empresa: '+err}) 
+    }
+}
+
+async function getData(req,res){
+    let token
+    try{
+        token = req.user
+        let empresaBuscada = await Empresa.findOne({_id:token._id});
+        res.status(200).json({accion:'update', datos: empresaBuscada}) 
+    }catch(err){
+        res.status(500).json({accion:'update', mensaje:`error al recuperar los datos [${token._id}]\n ${err}`}) 
+    }
+}
+
 /**********************************************/
 /**********************************************/
 /**********************************************/
 
 
-async function getData(req,res) {
+async function getData2(req,res) {
     try{
         let datosEmpresa = await Empresa.findById();
         res.status(200).json({accion:'get all', datos: usuarios}) 
@@ -165,17 +210,7 @@ async function remove(req,res){
    
 }
 
-async function update (req,res){
-    var datos = req.body;
-    let usuarioId = req.params.id;
 
-    try{
-        let usuarioActualizado = await Usuario.findByIdAndUpdate(usuarioId, datos);
-        res.status(200).json({accion:'update', datos: usuarioActualizado}) 
-    }catch(err){
-        res.status(500).json({accion:'update', mensaje:'error al actualizar el usuario'}) 
-    }
-}
 
 // Ojo con populate
 async function getPuntuacionesUsuario(req,res) {
@@ -190,38 +225,7 @@ async function getPuntuacionesUsuario(req,res) {
 }
 
 
-async function insertPuntuacion(req, res){
-    const session = await mongoose.startSession();
-    try{
-        session.startTransaction();
-
-        let usuarioId = req.params.id;
-        // Buscamos el usuario
-        let usuarioBuscado = await Usuario.findById(usuarioId);
-        // Creamos una nueva puntuacion (con el body)
-        let puntuacionNueva = new Puntuacion(req.body)
-        // asignamos la puntuacion al usuairo
-       // puntuacionNueva.usuario = usuarioBuscado;
-        // Guardamos la puntuacion
-        let puntuacionGuardada = await puntuacionNueva.save();
-        // colocamos la puntuación dentro del usuario 
-        usuarioBuscado.puntuaciones.push(puntuacionGuardada)
-        // Guardamos el usuario
-        let usuarioGuardado = await usuarioBuscado.save();
-
-        await session.commitTransaction();
-        //session.endSession();
-
-        res.status(200).json({accion:'save', datos: usuarioGuardado}) 
-    }catch(err){
-        console.log(err)
-        await session.abortTransaction();
-        res.status(500).json({accion:'save', mensaje:'error al guardar la puntuacion en el usuario'+err}) 
-    }finally{
-        session.endSession();
-    }
-    
-}
 
 
-module.exports = {getData, getById, getPuntuacionesUsuario, register, login, remove, update, insertPuntuacion }
+
+module.exports = {register, login, update, remove, getData}
