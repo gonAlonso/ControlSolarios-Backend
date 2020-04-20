@@ -9,6 +9,7 @@ dotenv.config();
 const routerEmpresa = require('./routers/empresa')
 const routerSolario = require('./routers/solario')
 const routerOperario = require('./routers/operario')
+const routerUsuario = require('./routers/usuario')
 
 var app = express();
 // BodyParser to convert plain text to JSON
@@ -23,6 +24,7 @@ app.use(morgan('dev'))
 app.use('/empresa', routerEmpresa)
 app.use('/solario', routerSolario)
 app.use('/operario', routerOperario)
+app.use('/usuario', routerUsuario)
 
 
 app.use('/', function(req, res){
