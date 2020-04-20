@@ -126,9 +126,6 @@ async function update(req,res){
     // Validar datos de la empresa
     try {
         const { error, value } = await schemaUpdate.validateAsync(req.body)
-        console.log(value)
-        console.log(error)
-
     }
     catch (err) { 
         return res.status(400).json({accion:'register', mensaje:'error al validar los datos de la empresa: '+err}) 
@@ -136,7 +133,10 @@ async function update(req,res){
 
     try{
         const token = req.user
-        let empresaActualizada = await Empresa.findOneAndUpdate({_id:token._id}, req.body, {new:true});
+        let empresaActualizada = await Empresa.findOneAndUpdate({
+            _id:token._id},
+            req.body, {new:true});
+        if (!empresaActualizada) throw "No se encuentra la empresa" // Nunca debería suceder esta condicion
         res.status(200).json({accion:'update', datos: empresaActualizada}) 
     }catch(err){
         res.status(500).json({accion:'update', mensaje:'error al actualizar datos de la empresa: '+err}) 

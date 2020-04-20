@@ -1,6 +1,5 @@
 
 var Solario = require('../models/solario')
-var Empresa = require('../models/empresa')
 var mongoose = require('mongoose');
 const Joi = require('@hapi/joi')
 const bcrypt = require('bcrypt')
@@ -35,7 +34,6 @@ async function register(req, res){
 
     try {
         const { error, value } = await schemaRegister.validateAsync(req.body)
-        console.log(`Error: ${error} :: Value: ${value}`)
     }
     catch (err) { 
         return res.status(400).json({accion:'register', mensaje:'error al validar los datos de la empresa: '+err}) 
@@ -47,22 +45,13 @@ async function register(req, res){
         session.startTransaction();
 
         let empresaId = req.user
-        // Buscamos la empresa en la BD
-        let empresaBuscada = await Empresa.findById(empresaId);
         // Creamos un nuevo solario (con el body)
         let solarioNuevo = new Solario(req.body)
         // Referencia a la empresa en el documento solario
         solarioNuevo.propietario = empresaId
         // Guardamos la puntuacion
-        let solarioGuardado = await solarioNuevo.save();
-        // colocamos la puntuación dentro del usuario 
-        //empresaBuscada.solarios.push(solarioGuardado)
-        // Guardamos el usuario
-        //let empresaGuardada = await empresaBuscada.save();
-
-        await session.commitTransaction();
-        //session.endSession();
-
+        let solarioGuardado = await solarioNuevo.save()
+        await session.commitTransaction()
         res.status(200).json({accion:'save', datos: solarioGuardado}) 
     }catch(err){
         console.log(err)
@@ -96,7 +85,6 @@ async function remove(req,res){
 async function update(req,res){
     try {
         const { error, value } = await schemaUpdate.validateAsync(req.body)
-        console.log(`ERROR: ${error} :: Value: ${value}`)
     }
     catch (err) { 
         return res.status(400).json({accion:'update', mensaje:'error al validar los datos del solario: '+err}) 
@@ -110,6 +98,7 @@ async function update(req,res){
                 propietario: token._id
             },
             req.body, {new:true});
+        if(!solarioActualizado) throw "No se ha encontrado el solario"
         return res.status(200).json({accion:'update', datos: solarioActualizado}) 
     }catch(err){
         return res.status(500).json({accion:'update', mensaje:'error al actualizar datos del solario: '+err}) 
@@ -121,9 +110,9 @@ async function getAll(req,res){
     try{
         const token = req.user
         let listaSolarios = await Solario.find({propietario: token._id})
-        return res.status(200).json({accion:'delete', datos: listaSolarios}) 
+        return res.status(200).json({accion:'getall', datos: listaSolarios}) 
     }catch(err){
-        return res.status(500).json({accion:'delete', mensaje:'error al listar solarios de esta empresa:'+err}) 
+        return res.status(500).json({accion:'getall', mensaje:'error al listar solarios de esta empresa:'+err}) 
     }
    
 }
