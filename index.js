@@ -8,6 +8,7 @@ dotenv.config();
 
 const routerEmpresa = require('./routers/empresa')
 const routerSolario = require('./routers/solario')
+const routerOperario = require('./routers/operario')
 
 var app = express();
 // BodyParser to convert plain text to JSON
@@ -21,7 +22,9 @@ app.use(morgan('dev'))
 
 app.use('/empresa', routerEmpresa)
 app.use('/solario', routerSolario)
-// Se debe permitir listar los establecimientos asociados sin iniciar sesion
+app.use('/operario', routerOperario)
+
+
 app.use('/', function(req, res){
     res.status(500).json({accion:'home', mensaje:'Function denied'}) 
 
