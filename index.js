@@ -10,6 +10,8 @@ const routerEmpresa = require('./routers/empresa')
 const routerSolario = require('./routers/solario')
 const routerOperario = require('./routers/operario')
 const routerUsuario = require('./routers/usuario')
+const routerBono = require('./routers/bono')
+const routerSesion = require('./routers/sesion')
 
 var app = express();
 // BodyParser to convert plain text to JSON
@@ -25,6 +27,8 @@ app.use('/empresa', routerEmpresa)
 app.use('/solario', routerSolario)
 app.use('/operario', routerOperario)
 app.use('/usuario', routerUsuario)
+app.use('/bono', routerBono)
+app.use('/sesion', routerSesion)
 
 
 app.use('/', function(req, res){
