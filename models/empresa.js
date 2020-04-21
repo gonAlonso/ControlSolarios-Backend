@@ -25,11 +25,6 @@ let EmpresaSchema = Schema(
             enum: ["MINUTOS", "SESIONES"],
             default: "SESIONES"
         },
-        operarios: [],
-        solarios:[{
-            type: Schema.ObjectId,
-            ref:'Solario'
-        }]
     }
 )
 

@@ -7,9 +7,8 @@ let SolarioSchema = Schema(
         propietario: {type: Schema.ObjectId, ref:'Empresa'},
         nombre: String,
         potencia: Number,
-        fechaUltimaRevision: {
-            type: Date,
-            default: Date.now
+        proximaUltimaRevision: {
+            type: Date
         },
         estado: {
             type: String,

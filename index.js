@@ -13,6 +13,8 @@ const routerUsuario = require('./routers/usuario')
 const routerBono = require('./routers/bono')
 const routerSesion = require('./routers/sesion')
 
+const Login = require('./controller/login')
+
 var app = express();
 // BodyParser to convert plain text to JSON
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -31,6 +33,7 @@ app.use('/bono', routerBono)
 app.use('/sesion', routerSesion)
 
 
+app.use('/login', Login.login )
 app.use('/', function(req, res){
     res.status(500).json({accion:'home', mensaje:'Function denied'}) 
 
@@ -38,7 +41,9 @@ app.use('/', function(req, res){
 
 
 const run = async () => {
+    console.log(`Conectando a la base de datos`)
     await mongoose.connect(process.env.URL_BASEDATOS, { useFindAndModify: false, useNewUrlParser: true, useUnifiedTopology: true })
+    console.log(`Iniciando servidor`)
     await app.listen(process.env.PUERTO_SERVIDOR)
     console.log(`Servidor [${process.env.PUERTO_SERVIDOR}] y base de datos arrancados`)
 }

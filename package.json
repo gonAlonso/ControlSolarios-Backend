@@ -20,7 +20,7 @@
   "author": "Gonzalo Alonso Castro",
   "license": "ISC",
   "bugs": {
-    "url": ""
+    "url": "ssh://zalo@gac.duckdns.org:23/mnt/shared/git/GestionSolarios/"
   },
   "homepage": "",
   "dependencies": {

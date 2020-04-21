@@ -95,7 +95,8 @@ async function login(req, res){
         const { error, value } = await schemaLogin.validateAsync(req.body)
     }
     catch (err) { 
-        return res.status(400).json({accion:'save', mensaje:'error al validar el login'+err}) 
+        console.log('error al validar el login'+err)
+        return res.status(400).json({accion:'login', mensaje:'Usuario o contraseña inválidos'})
     }
 
     // Comprobar que el usuario si existe
