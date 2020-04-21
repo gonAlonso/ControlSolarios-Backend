@@ -6,6 +6,7 @@ var verify = require('./verifyToken')
 
 router.post('/login', controller.login)
 router.get('/empresas', verify.authAdministrador, controller.getAllEmpresas)
+router.get('/usuarios', verify.authAdministrador, controller.getAllUsuarios)
 //router.post('/gestor', verify.authAdministrador, controller.registerGestor)
 //router.put('/gestor/:id', verify.authGestor, controller.activar)
 //router.delete('/empresa/:idempresa', verify.authGestor, controller.remove)

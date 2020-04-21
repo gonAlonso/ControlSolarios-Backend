@@ -69,7 +69,17 @@ async function login(req, res){
         
     res.status(200).send({token, tipo: token.tipo})
 }
-        
+
+async function getAllUsuarios(req,res){
+
+    try{
+        let listaUsuarios = await Usuario.find({})
+        return res.status(200).json({accion:'getallUsuarios', datos: listaUsuarios}) 
+    }catch(err){
+        console.log("getallUsuarios ERROR: "+ err)
+        return res.status(500).json({accion:'getallUsuarios', mensaje:'error al listar todas los usuarios:'+err}) 
+    }
+}
         
 async function getAllEmpresas(req,res){
 
@@ -80,7 +90,6 @@ async function getAllEmpresas(req,res){
         console.log("getallEmpresas ERROR: "+ err)
         return res.status(500).json({accion:'getallEmpresas', mensaje:'error al listar todas las empresas:'+err}) 
     }
-    
 }
 
 
@@ -156,4 +165,4 @@ async function getUsuario(req,res){
 }
 
 //module.exports = {activar, remove, getAll, getUsuario, loginadmin, registerGestor, login }
-module.exports = { login, registerGestor, getAllEmpresas }
+module.exports = { login, registerGestor, getAllEmpresas, getAllUsuarios}
