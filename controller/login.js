@@ -6,7 +6,6 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 
-
 /*********************************************
 * Validaciones de datos
 *********************************************/
@@ -55,5 +54,6 @@ async function login(req, res){
     res.status(200).send({token, tipo: loginExistente.tipo}) 
 
 }
+
 
 module.exports = { login }

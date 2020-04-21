@@ -65,9 +65,9 @@ function authAdministrador(req,res,next){
         const token = req.header('auth-token');
         if(!token) throw "Token no disponible"
         const verificado = jwt.verify(token, process.env.TOKEN_SECRETO)
-        if(verificado.tipo != "ADMINISYTADOR") throw "Usuario no autorizado"
+        if(verificado.tipo != "ADMINISTRADOR") throw "Usuario no autorizado"
         req.user = verificado
-        //console.log(verificado)
+        console.log("ADMIN: "+verificado)
     }catch(err){
         console.log("Acceso denegago: "+err)
         return res.status(401).send('Acceso denegado')
