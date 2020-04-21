@@ -12,6 +12,7 @@ const routerOperario = require('./routers/operario')
 const routerUsuario = require('./routers/usuario')
 const routerBono = require('./routers/bono')
 const routerSesion = require('./routers/sesion')
+//const routerLogin = require('./routers/login')
 
 const Login = require('./controller/login')
 
@@ -24,14 +25,13 @@ app.use(cors())
 
 app.use(morgan('dev'))
 
-
 app.use('/empresa', routerEmpresa)
 app.use('/solario', routerSolario)
 app.use('/operario', routerOperario)
 app.use('/usuario', routerUsuario)
 app.use('/bono', routerBono)
 app.use('/sesion', routerSesion)
-
+//app.use('/login', routerSesion)
 
 app.use('/login', Login.login )
 app.use('/', function(req, res){

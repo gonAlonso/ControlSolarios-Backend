@@ -9,9 +9,10 @@ let LoginSchema = Schema(
         password: String,
         tipo: {
             type: String,
-            enum: ["INVITADO","USUARIO", "EMPRESA", "GESTOR", "ADMINISTRADOR"],
+            enum: ["INVITADO","USUARIO", "EMPRESA", "GESTOR", "ADMINISTRADOR", "ELIMINADO"],
             default: "INVITADO"
         },
+        referencia: {type: Schema.ObjectId, ref: 'Datos'},
     }
 )
 

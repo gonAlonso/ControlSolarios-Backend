@@ -33,24 +33,26 @@ async function login(req, res){
     }
 
     // Comprobar que el usuario si existe
-    let empresaExistente = await Empresa.findOne({email:req.body.email})
-    if(!empresaExistente) return res.status(400).json({accion:'save', mensaje:'Error 1 en el email/password. Datos incorrectos'}) 
+    let loginExistente = await Login.findOne({email:req.body.email})
+    if(!loginExistente) return res.status(400).json({accion:'login', mensaje:'Error[1] en el email/password. Datos incorrectos'}) 
    
    
     // Comprobamos si el password coincide
-    const passwordValido = await bcrypt.compare(req.body.password, empresaExistente.password)
-    if(!passwordValido) return res.status(400).json({accion:'save', mensaje:'Error 2 en el email/password. Datos incorrectos'}) 
+    const passwordValido = await bcrypt.compare(req.body.password, loginExistente.password)
+    if(!passwordValido) return res.status(400).json({accion:'login', mensaje:'Error[2] en el email/password. Datos incorrectos'}) 
   
     // Creamos el token jwt (jsonwebtoken)  Ver web: https://jwt.io/
     const token = jwt.sign( 
         {
-            _id: empresaExistente._id, 
+            _id: loginExistente._id,
+            tipo: loginExistente.tipo,
+            referencia: loginExistente.referencia,
             exp: Math.floor(Date.now() / 1000) + (60 * 60), //1 hora
         }, 
         process.env.TOKEN_SECRETO )
     res.header('auth-token', token)
 
-    res.status(200).send({token}) 
+    res.status(200).send({token, tipo: loginExistente.tipo}) 
 
 }
 

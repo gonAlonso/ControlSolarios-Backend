@@ -7,10 +7,9 @@ let Schema = mongoose.Schema;
 let EmpresaSchema = Schema(
     {
         _id: {type: Schema.ObjectId, auto:true},
+        login: {type: Schema.ObjectId, ref:'Login'},
         nombre: String,
         cif: String,
-        email: String,
-        password: String,
         tlf: String,
         nombreFiscal: String,
         direccion: String,
@@ -25,6 +24,7 @@ let EmpresaSchema = Schema(
             enum: ["MINUTOS", "SESIONES"],
             default: "SESIONES"
         },
+        historicoEstados: []
     }
 )
 
