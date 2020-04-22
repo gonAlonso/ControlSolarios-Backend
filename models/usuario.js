@@ -1,5 +1,6 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
+let Bono = require('./bono').schema
 
 let UsuarioSchema = Schema(
     {
@@ -7,7 +8,6 @@ let UsuarioSchema = Schema(
         empresa: {type: Schema.ObjectId, ref:'Empresa'},
         nombre: String,
         dni: String,
-        //pin: Number,
         email: String,
         tlf: Number,
         fototipo: String,
@@ -19,7 +19,9 @@ let UsuarioSchema = Schema(
             type: String,
             enum: ["ACTIVO", "BAJA", "ELIMINADO", "IMPAGO"],
             default: "ACTIVO"
-        }
+        },
+        //bonos : [Bono]
+        bono: {type: Bono, default: null}
     }
 )
 

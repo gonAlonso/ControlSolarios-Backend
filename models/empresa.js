@@ -1,6 +1,8 @@
 let mongoose = require('mongoose');
 
-var Solario = require('./solario')
+var Solario = require('./solario').schema
+var EstadosEmpresa = require('./estadosempresa').schema
+var Operario = require('./operario').schema
 
 let Schema = mongoose.Schema;
 
@@ -24,7 +26,9 @@ let EmpresaSchema = Schema(
             enum: ["MINUTOS", "SESIONES"],
             default: "SESIONES"
         },
-        historicoEstados: []
+        solarios: [Solario],
+        operarios: [Operario],
+        historicoEstados: [EstadosEmpresa]
     }
 )
 

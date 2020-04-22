@@ -7,11 +7,11 @@ const dotenv = require('dotenv'); // Environment config
 dotenv.config();
 
 const routerEmpresa = require('./routers/empresa')
-const routerSolario = require('./routers/solario')
-const routerOperario = require('./routers/operario')
-const routerUsuario = require('./routers/usuario')
-const routerBono = require('./routers/bono')
-const routerSesion = require('./routers/sesion')
+//const routerSolario = require('./routers/solario')
+//const routerOperario = require('./routers/operario')
+//const routerUsuario = require('./routers/usuario')
+//const routerBono = require('./routers/bono')
+//const routerSesion = require('./routers/sesion')Copy
 const routerGestion = require('./routers/gestion')
 const routerAdmin = require('./routers/admin')
 //const routerLogin = require('./routers/login')
@@ -28,18 +28,18 @@ app.use(cors())
 app.use(morgan('dev'))
 
 app.use('/empresa', routerEmpresa)
-app.use('/solario', routerSolario)
-app.use('/operario', routerOperario)
-app.use('/usuario', routerUsuario)
-app.use('/bono', routerBono)
-app.use('/sesion', routerSesion)
+//app.use('/solario', routerSolario)
+//app.use('/operario', routerOperario)
+//app.use('/usuario', routerUsuario)
+//app.use('/bono', routerBono)
+//app.use('/sesion', routerSesion)
 app.use('/gestion', routerGestion)
 app.use('/admin', routerAdmin)
 //app.use('/login', routerLogin)
 
 app.use('/login', Login.login )
 app.use('/', function(req, res){
-    res.status(500).json({accion:'home', mensaje:'Function denied'}) 
+    res.status(500).json({accion:'root', mensaje:'Function denied'}) 
 
 })
 

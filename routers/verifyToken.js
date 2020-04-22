@@ -22,7 +22,7 @@ function authEmpresa(req,res,next){
         const verificado = jwt.verify(token, process.env.TOKEN_SECRETO)
         if(verificado.tipo != "EMPRESA") throw "Usuario no autorizado"
         req.user = verificado
-        console.log(verificado)
+        //console.log(verificado)
     }catch(err){
         console.log("Acceso denegago: "+err)
         return res.status(401).send('Acceso denegado')

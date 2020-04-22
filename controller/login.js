@@ -32,7 +32,10 @@ async function login(req, res){
     }
 
     // Comprobar que el usuario si existe
-    let loginExistente = await Login.findOne({email:req.body.email})
+    let loginExistente = await Login.findOne({
+        email:req.body.email,
+        tipo: {$ne: "ELIMINADO"}
+    })
     if(!loginExistente) return res.status(400).json({accion:'login', mensaje:'Error[1] en el email/password. Datos incorrectos'}) 
    
    

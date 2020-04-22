@@ -3,9 +3,6 @@ let Schema = mongoose.Schema;
 
 let BonoSchema = Schema(
     {
-        _id: {type: Schema.ObjectId, auto:true},
-        empresa: {type: Schema.ObjectId, ref:'Empresa'},
-        usuario: {type: Schema.ObjectId, ref:'Usuario'},
         valor: Number,
         restante: Number,
         tipo: {
@@ -19,11 +16,6 @@ let BonoSchema = Schema(
         },
         fechaLimite: {
             type: Date
-        },
-        estado: {
-            type: String,
-            enum: ["ACTIVO", "BAJA", "ELIMINADO", "IMPAGO"],
-            default: "ACTIVO"
         }
     }
 )

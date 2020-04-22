@@ -3,8 +3,8 @@ let Schema = mongoose.Schema;
 
 let OperarioSchema = Schema(
     {
-        _id: {type: Schema.ObjectId, auto:true},
-        empresa: {type: Schema.ObjectId, ref:'Empresa'},
+        //_id: {type: Schema.ObjectId, auto:true},
+        //empresa: {type: Schema.ObjectId, ref:'Empresa'},
         nombre: String,
         dni: String,
         pin: Number,
