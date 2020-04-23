@@ -9,11 +9,13 @@ exports.auth = (req,res,next) => {
         console.log(verificado)
     }catch(err){
         console.log("Acceso denegago: "+err)
-        return res.status(401).send('Acceso denegado')
+        return res.status(401).send(denegado)
     }
     next();
 }
 */
+
+const denegado = {accion: "login", mensaje: 'Acceso denegado'}
 
 function authEmpresa(req,res,next){
     try{
@@ -25,7 +27,7 @@ function authEmpresa(req,res,next){
         //console.log(verificado)
     }catch(err){
         console.log("Acceso denegago: "+err)
-        return res.status(401).send('Acceso denegado')
+        return res.status(401).send(denegado)
     }
     next();
 }
@@ -40,7 +42,7 @@ function authUsuario(req,res,next){
         console.log(verificado)
     }catch(err){
         console.log("Acceso denegago: "+err)
-        return res.status(401).send('Acceso denegado')
+        return res.status(401).send(denegado)
     }
     next();
 }
@@ -55,7 +57,7 @@ function authGestor(req,res,next){
         console.log(verificado)
     }catch(err){
         console.log("Acceso denegago: "+err)
-        return res.status(401).send('Acceso denegado')
+        return res.status(401).send(denegado)
     }
     next();
 }
@@ -70,7 +72,7 @@ function authAdministrador(req,res,next){
         console.log("ADMIN: "+verificado)
     }catch(err){
         console.log("Acceso denegago: "+err)
-        return res.status(401).send('Acceso denegado')
+        return res.status(401).send(denegado)
     }
     next();
 }
@@ -86,7 +88,7 @@ function auth(req,res,next){
         console.log(verificado)
     }catch(err){
         console.log("Acceso denegago: "+err)
-        return res.status(401).send('Acceso denegado')
+        return res.status(401).send(denegado)
     }
     next();
 }
