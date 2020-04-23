@@ -1,31 +1,39 @@
-var Sesion = require('../models/sesion')
-var Usuario = require('../models/usuario')
-var Operario = require('../models/operario')
 var Empresa = require('../models/empresa')
+var EstadosEmpresa = require('../models/estadosempresa')
+var Login = require('../models/login')
+var Solario = require('../models/solario')
+var Usuario = require('../models/usuario')
 var Bono = require('../models/bono')
+var Operario = require('../models/operario')
+var Sesion = require('../models/sesion')
+
 var mongoose = require('mongoose');
 const Joi = require('@hapi/joi')
 const jwt = require('jsonwebtoken')
 const dotenv = require('dotenv'); // Environment config
-
+const bcrypt = require('bcrypt')
 
 dotenv.config();
-
 
 /*********************************************
 * Validaciones de datos
 *********************************************/
-const schemaLogin= Joi.object({
-    email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: true } }).required(),
-    password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
-})
 
-
-const schemaDesActivarEmpresa = Joi.object({
-    accion: Joi.string().valid("REGISTRADO","ACTIVO", "BAJA", "IMPAGO").required()
-})
-
-
+const {
+    schemaRegisterEmpresa,
+    schemaRemoveEmpresa,
+    schemaUpdateEmpresa,
+    schemaRegisterOperario,
+    schemaUpdateOperario,
+    schemaRegisterSolario,
+    schemaUpdateSolario,
+    schemaRegisterSesion,
+    schemaRegisterUsuario,
+    schemaUpdateUsuario,
+    schemaRegisterBono,
+    schemaRegisterLogin,
+    schemaLogin
+} = require('../schemas/admin')
 /*********************************************
  * Funcionalidades implementadas
  *********************************************/
@@ -92,51 +100,60 @@ async function getAllEmpresas(req,res){
     }
 }
 
+async function getAllLogins(req,res){
 
-async function activar(req, res){
-    
-    try {
-        const { error, value } = await schemaDesActivarEmpresa.validateAsync(req.body)
-    }
-    catch (err) { 
-        return res.status(400).json({accion:'activar', mensaje:'error al validar los datos de la gestion '+err}) 
-    }
-    
-    const session = await mongoose.startSession();
-    
     try{
-        let empresaId = req.params.idempresa
-        
-        let empresaActualizada = await Empresa.findOneAndUpdate(
-            {_id: empresaId},
-            {estado: req.body.estado},
-            {new:true})
-        if(!empresaActualizada) throw "No se ha encontrado la empresa "
-
-        await session.commitTransaction();
-        res.status(200).json({accion:'save', datos: empresaActualizada})
+        let listaLogins = await Login.find({})
+        return res.status(200).json({accion:'getallLogin', datos: listaLogins}) 
     }catch(err){
-        console.log(err)
-        await session.abortTransaction();
-        res.status(500).json({accion:'save', mensaje:`error al guardar la sesion [${err}]`})
-        console.log(`Register ERROR: ${err}, Op: ${idOperario}, Em: ${empresaId}, Us: ${idUsuario}, No: ${idBono}`) 
-    }finally{
-        session.endSession();
+        console.log("GetAllLogin ERROR: "+ err)
+        return res.status(500).json({accion:'getallLogin', mensaje:'Error al listar todos los login:'+err}) 
     }
 }
 
-async function remove(req,res){
+async function getAllSesiones(req,res){
+
     try{
-        throw "No IMPLEMENTADO"
-        const token = req.user
+        let listaSesiones = await Sesion.find({})
+        return res.status(200).json({accion:'getallsesiones', datos: listaSesiones}) 
+    }catch(err){
+        console.log("GgetAllSesiones ERROR: "+ err)
+        return res.status(500).json({accion:'getallsesiones', mensaje:'Error al listar todas las sesiones:'+err}) 
+    }
+}
+
+
+async function deleteEmpresa(req,res){
+    try{
+        let idEmpresa = req.params.id
+
+        let empresaEliminada = await Empresa.findOneAndDelete({_id: idEmpresa})
+        if(!empresaEliminada) throw "No se ha podido eliminar la empresa"
+        return res.status(200).json({accion:'delete', datos: empresaEliminada})
+    }catch(err){
+        console.log( "ERROR: " +err) 
+        return res.status(500).json({accion:'delete', mensaje:'error al eliminar la empresa'})
+    }
+}
+
+async function deleteUusario(req,res){
+    try{
+        let idUsuario = req.params.id
+
+        let usuarioEliminado = await Usuario.findOneAndDelete({_id: idUsuario})
+        if(!usuarioEliminado) throw "No se ha podido eliminar el usuario"
+        return res.status(200).json({accion:'delete', datos: usuarioEliminado})
+    }catch(err){
+        console.log( "ERROR: " +err) 
+        return res.status(500).json({accion:'delete', mensaje:'error al eliminar el usuario'})
+    }
+}
+
+async function deleteSesion(req,res){
+    try{
         let idSesion = req.params.id
 
-        let sesionEliminada = await Sesion.findOneAndDelete({
-                _id: idSesion,
-                empresa: token._id
-            },
-            {sort:{fecha:-1}},
-            {limit: 1})
+        let sesionEliminada = await Sesion.findOneAndDelete({_id: idSesion})
         if(!sesionEliminada) throw "No se ha podido eliminar la sesion"
         return res.status(200).json({accion:'delete', datos: sesionEliminada})
     }catch(err){
@@ -145,8 +162,18 @@ async function remove(req,res){
     }
 }
 
+async function deleteLogin(req,res){
+    try{
+        let idLogin = req.params.id
 
-async function registerGestor(req,res){ }
+        let loginEliminado = await Login.findOneAndDelete({_id: idLogin})
+        if(!loginEliminado) throw "No se ha podido eliminar el login"
+        return res.status(200).json({accion:'delete', datos: loginEliminado})
+    }catch(err){
+        console.log( "ERROR: " +err) 
+        return res.status(500).json({accion:'delete', mensaje:'error al eliminar el login'})
+    }
+}
 
 async function getUsuario(req,res){
     try{
@@ -164,5 +191,123 @@ async function getUsuario(req,res){
    
 }
 
-//module.exports = {activar, remove, getAll, getUsuario, loginadmin, registerGestor, login }
-module.exports = { login, registerGestor, getAllEmpresas, getAllUsuarios}
+async function registerEmpresa(req, res){
+    try {
+         const { error, value } = await schemaRegisterEmpresa.validateAsync(req.body)
+     }
+     catch (err) { 
+         return res.status(400).json({accion:'register', mensaje:'error al validar los datos de la empresa: '+err}) 
+     }
+     
+     try {
+         let loginExistente = await Login.findOne({email:req.body.email})
+         if(loginExistente) throw "Login ya existe"
+     }
+     catch (err) { 
+         console.log('Error iesperado en el registro: '+err) 
+         return res.status(400).json({accion:'register', mensaje:'Error en los datos de empresa. Login ya existe'}) 
+     }
+ 
+     // Comprobar que la empresa no existe antes
+     try {
+         let empresaExistente = await Empresa.findOne({cif:req.body.cif})
+         if(empresaExistente) throw "CIF ya existe"
+     }
+     catch (err) { 
+         console.log('Error inesperado en el registro: '+err) 
+         return res.status(400).json({accion:'register', mensaje:'Error en los datos de empresa. CIF ya existe'}) 
+     }
+    
+     // Creamos el hash del password (nunca debemos guardar el password en texto claro)
+     const salt = await bcrypt.genSalt(10)
+     const hashPassword = await bcrypt.hash(req.body.password, salt)
+ 
+     const empresaDoc = new Empresa({
+         nombre: req.body.nombre,
+         cif: req.body.cif,
+         tlf: req.body.tlf,
+         nombreFiscal: req.body.nombreFiscal,
+         direccion: req.body.direccion,
+         fechaRegistro: {type: Date, default: Date.now},
+         estado: "REGISTRADO",
+         tipoBono: req.body.tipoBono,
+         fechaRegistro: new Date()
+     })
+ 
+     const loginDoc = new Login({
+         email: req.body.email,
+         password: hashPassword,
+         tipo: "EMPRESA"
+     })
+     
+     const session = await mongoose.startSession();
+     try{
+         session.startTransaction();
+         let loginGuardado = await loginDoc.save({upsert:false})
+         empresaDoc.login = loginGuardado
+         let empresaGuardada = await empresaDoc.save({upsert:false})
+         loginGuardado.referencia = empresaGuardada
+         await loginGuardado.save()
+         await session.commitTransaction();
+         res.status(200).json({accion:'register', datos: empresaGuardada}) 
+     }catch(err){
+         console.log("Error de registro de empresa: "+ err)
+         await session.abortTransaction();
+         res.status(500).json({accion:'register', mensaje:'error al guardar los datos de la empresa. Cancelado'}) 
+     }
+ 
+ }
+ 
+
+ async function registerLogin(req, res){
+    try {
+         const { error, value } = await schemaRegisterLogin.validateAsync(req.body)
+     }
+     catch (err) { 
+         return res.status(400).json({accion:'register', mensaje:'error al validar los datos de la empresa: '+err}) 
+     }
+     
+     try {
+         let loginExistente = await Login.findOne({email:req.body.email})
+         if(loginExistente) throw "Login ya existe"
+     }
+     catch (err) { 
+         console.log('Error iesperado en el registro: '+err) 
+         return res.status(400).json({accion:'register', mensaje:'Error en los datos de Login. Ya existe'}) 
+     }
+ 
+    
+     // Creamos el hash del password (nunca debemos guardar el password en texto claro)
+     const salt = await bcrypt.genSalt(10)
+     const hashPassword = await bcrypt.hash(req.body.password, salt)
+ 
+     const loginDoc = new Login({
+         email: req.body.email,
+         password: hashPassword,
+         tipo: req.body.tipo
+     })
+     
+     try{
+         let loginGuardado = await loginDoc.save({upsert:false})
+         if(!loginGuardado) throw "No se ha guardado"
+         res.status(200).json({accion:'registerlogin', datos: loginGuardado}) 
+     }catch(err){
+         res.status(500).json({accion:'registerlogin', mensaje:'error al guardar los datos de login. Cancelado'}) 
+     }
+ 
+ }
+
+
+module.exports = {
+    login,
+    getAllEmpresas,
+    getAllUsuarios,
+    getAllSesiones,
+    getAllLogins,
+    deleteSesion,
+    deleteUusario,
+    deleteEmpresa,
+    deleteLogin,
+    registerEmpresa,
+    registerLogin
+}
