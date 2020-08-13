@@ -18,7 +18,7 @@ let EmpresaSchema = Schema(
         fechaRegistro: {type: Date, default: Date.now},
         estado: {
             type: String,
-            enum: ["REGISTRADO","ACTIVO", "BAJA", "IMPAGO"],
+            enum: ["REGISTRADO","ACTIVO", "BAJA", "IMPAGO", "DESACTIVADO"],
             default: "REGISTRADO"
         },
         tipoBono: {

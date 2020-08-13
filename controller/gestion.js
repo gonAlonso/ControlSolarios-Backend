@@ -3,116 +3,166 @@ var Usuario = require('../models/usuario')
 var Operario = require('../models/operario')
 var Empresa = require('../models/empresa')
 var Bono = require('../models/bono')
+var Gestion = require('../models/gestion')
+
 var mongoose = require('mongoose');
 const Joi = require('@hapi/joi')
 
-
-/*********************************************
-* Validaciones de datos
-*********************************************/
-const schemaDesActivarEmpresa = Joi.object({
-    accion: Joi.string().valid("REGISTRADO","ACTIVO", "BAJA", "IMPAGO").required()
-  })
+const {
+    schemaDesActivarEmpresa
+} = require('../schemas/gestion')
 
 
 /*********************************************
 * Funcionalidades implementadas
 *********************************************/
 
-async function activar(req, res){
+async function activarEmpresa(req, res){
 
     try {
         const { error, value } = await schemaDesActivarEmpresa.validateAsync(req.body)
     }
     catch (err) { 
-        return res.status(400).json({accion:'activar', mensaje:'error al validar los datos de la gestion '+err}) 
+        return res.status(400).json({accion:'activarempresa', mensaje:'error al validar los datos de la gestion '+err}) 
     }
 
-    const session = await mongoose.startSession();
+    const sesion = await mongoose.startSession();
 
     try{
-        let empresaId = req.params.idempresa
-       
+        sesion.startTransaction();
+        let empresaId = req.params.id
+        
         let empresaActualizada = await Empresa.findOneAndUpdate(
-            {_id: empresaId},
-            {estado: req.body.estado},
-            {new:true})
+            {_id: empresaId, estado: { $ne: "ACTIVO"}},
+            {estado: "ACTIVO"},
+            {new:true}).session(sesion)
+
         if(!empresaActualizada) throw "No se ha encontrado la empresa "
 
-        await session.commitTransaction();
-        res.status(200).json({accion:'save', datos: empresaActualizada})
+        let gestion = new Gestion({
+            gestor: req.user._id,
+            mensaje: req.body.mensaje,
+            accion: {
+                tipo: "EMPRESA",
+                id: empresaId,
+                accion: "ACTIVO"
+            }
+        })
+        let gestionGuardada = await gestion.save(sesion)
+        if(!gestionGuardada) throw "No se ha podido guardar la gestion"
+
+        await sesion.commitTransaction();
+        res.status(200).json({accion:'activarempresa', datos: empresaActualizada})
     }catch(err){
-        console.log(err)
-        await session.abortTransaction();
-        res.status(500).json({accion:'save', mensaje:`error al guardar la sesion [${err}]`})
-        console.log(`Register ERROR: ${err}, Op: ${idOperario}, Em: ${empresaId}, Us: ${idUsuario}, No: ${idBono}`) 
+        await sesion.abortTransaction();
+        res.status(500).json({accion:'activarempresa', mensaje:`error al guardar cambios [${err}]`})
     }finally{
-        session.endSession();
-    }
-    
+        sesion.endSession();
+    }    
 }
 
-async function remove(req,res){
-    try{
-        throw "No IMPLEMENTADO"
-        const token = req.user
-        let idSesion = req.params.id
 
-        let sesionEliminada = await Sesion.findOneAndDelete({
-                _id: idSesion,
-                empresa: token._id
-            },
-            {sort:{fecha:-1}},
-            {limit: 1})
-        if(!sesionEliminada) throw "No se ha podido eliminar la sesion"
-        return res.status(200).json({accion:'delete', datos: sesionEliminada})
-    }catch(err){
-        console.log( "ERROR: " +err) 
-        return res.status(500).json({accion:'delete', mensaje:'error al eliminar la sesion'})
+async function desactivarEmpresa(req, res){
+    try {
+        const { error, value } = await schemaDesActivarEmpresa.validateAsync(req.body)
     }
+    catch (err) { 
+        return res.status(400).json({accion:'desactivarempresa', mensaje:'error al validar los datos de la gestion '+err}) 
+    }
+
+    const sesion = await mongoose.startSession();
+
+    try{
+        sesion.startTransaction();
+        let empresaId = req.params.id
+        
+        let empresaActualizada = await Empresa.findOneAndUpdate(
+            {_id: empresaId, estado: { $ne: "DESACTIVADO"}},
+            {estado: "DESACTIVADO"},
+            {new:true}).session(sesion)
+
+        if(!empresaActualizada) throw "No se ha encontrado la empresa "
+
+        let gestion = new Gestion({
+            gestor: req.user._id,
+            mensaje: req.body.mensaje,
+            accion: {
+                tipo: "EMPRESA",
+                id: empresaId,
+                accion: "DESACTIVADO"
+            }
+        })
+        let gestionGuardada = await gestion.save(sesion)
+        if(!gestionGuardada) throw "No se ha podido guardar la gestion"
+
+        await sesion.commitTransaction();
+        res.status(200).json({accion:'desactivarempresa', datos: empresaActualizada})
+    }catch(err){
+        await sesion.abortTransaction();
+        res.status(500).json({accion:'desactivarempresa', mensaje:`error al guardar cambios [${err}]`})
+    }finally{
+        sesion.endSession();
+    }    
+}
+
+async function impagoEmpresa(req, res){
+    try {
+        const { error, value } = await schemaDesActivarEmpresa.validateAsync(req.body)
+    }
+    catch (err) { 
+        return res.status(400).json({accion:'impagoempresa', mensaje:'error al validar los datos de la gestion '+err}) 
+    }
+
+    const sesion = await mongoose.startSession();
+
+    try{
+        sesion.startTransaction();
+        let empresaId = req.params.id
+        
+        let empresaActualizada = await Empresa.findOneAndUpdate(
+            {_id: empresaId, estado: { $ne: "IMPAGO"}},
+            {estado: "IMPAGO"},
+            {new:true}).session(sesion)
+
+        if(!empresaActualizada) throw "No se ha encontrado la empresa "
+
+        let gestion = new Gestion({
+            gestor: req.user._id,
+            mensaje: req.body.mensaje,
+            accion: {
+                tipo: "EMPRESA",
+                id: empresaId,
+                accion: "IMPAGO"
+            }
+        })
+        let gestionGuardada = await gestion.save(sesion)
+        if(!gestionGuardada) throw "No se ha podido guardar la gestion"
+
+        await sesion.commitTransaction();
+        res.status(200).json({accion:'impagoempresa', datos: empresaActualizada})
+    }catch(err){
+        await sesion.abortTransaction();
+        res.status(500).json({accion:'impagoempresa', mensaje:`error al guardar cambios [${err}]`})
+    }finally{
+        sesion.endSession();
+    }    
 }
 
 
 async function getAllEmpresas(req,res){
     try{
-        const token = req.user
-        let listaSesiones = await Sesion.find({
-            empresa: token._id
-        })
-        return res.status(200).json({accion:'getall', datos: listaSesiones}) 
+        let listaEmpresa = await Empresa.find({})
+        return res.status(200).json({accion:'getallempresas', datos: listaEmpresa}) 
     }catch(err){
-        return res.status(500).json({accion:'getall', mensaje:'error al listar sesiones:'+err}) 
+        return res.status(500).json({accion:'getallempresas', mensaje:'error al listar empresas:'+err}) 
     }
    
 }
 
-async function getAllUsuarios(req,res){
-    try{
-        const token = req.user
-        let listaSesiones = await Sesion.find({
-            empresa: token._id
-        })
-        return res.status(200).json({accion:'getall', datos: listaSesiones}) 
-    }catch(err){
-        return res.status(500).json({accion:'getall', mensaje:'error al listar sesiones:'+err}) 
-    }
-   
-}
 
-async function getUsuario(req,res){
-    try{
-        const token = req.user
-        let idUsuario = req.params.user
-        let listaSesiones = await Sesion.find({
-            empresa: token._id,
-            usuario: idUsuario
-        })
-        return res.status(200).json({accion:'getuser', datos: listaSesiones}) 
-    }catch(err){
-        console.log("getUsuario error: " + err)
-        return res.status(500).json({accion:'getuser', mensaje:'error al listar sesiones de este usuario'}) 
-    }
-   
+module.exports = {
+    impagoEmpresa,
+    activarEmpresa,
+    desactivarEmpresa,
+    getAllEmpresas
 }
-
-module.exports = {activar, remove, getAllUsuarios, getUsuario, getAllEmpresas }
