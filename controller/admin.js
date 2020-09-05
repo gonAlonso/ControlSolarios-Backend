@@ -75,7 +75,7 @@ async function login(req, res){
         process.env.TOKEN_SECRETO )
     res.header('auth-token', token)
         
-    res.status(200).send({token, tipo: token.tipo})
+    res.status(200).send({token, type: "ADMINISTRADOR"})
 }
 
 async function getAllUsuarios(req,res){
@@ -126,9 +126,12 @@ async function getAllSesiones(req,res){
 async function deleteEmpresa(req,res){
     try{
         let idEmpresa = req.params.id
-
+console.log("INTENTO ELIMINAR EMPRESA"); 
+let empresaEliminada = "Tu_Empresa";
+/**
         let empresaEliminada = await Empresa.findOneAndDelete({_id: idEmpresa})
         if(!empresaEliminada) throw "No se ha podido eliminar la empresa"
+**/
         return res.status(200).json({accion:'delete', datos: empresaEliminada})
     }catch(err){
         console.log( "ERROR: " +err) 
@@ -136,7 +139,7 @@ async function deleteEmpresa(req,res){
     }
 }
 
-async function deleteUusario(req,res){
+async function deleteUsusario(req,res){
     try{
         let idUsuario = req.params.id
 
@@ -159,6 +162,19 @@ async function deleteSesion(req,res){
     }catch(err){
         console.log( "ERROR: " +err) 
         return res.status(500).json({accion:'delete', mensaje:'error al eliminar la sesion'})
+    }
+}
+
+async function deleteSolario(req,res){
+    try{
+        let idSolario = req.params.id
+
+        let solarioEliminado = await Sesion.findOneAndDelete({_id: idSolario})
+        if(!solarioEliminado) throw "No se ha podido eliminar el solario"
+        return res.status(200).json({accion:'delete', datos: solarioEliminado})
+    }catch(err){
+        console.log( "ERROR: " +err) 
+        return res.status(500).json({accion:'delete', mensaje:'error al eliminar el solario'})
     }
 }
 
@@ -305,9 +321,10 @@ module.exports = {
     getAllSesiones,
     getAllLogins,
     deleteSesion,
-    deleteUusario,
+    deleteUsusario,
     deleteEmpresa,
     deleteLogin,
+    deleteSolario,
     registerEmpresa,
     registerLogin
 }

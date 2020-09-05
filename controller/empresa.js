@@ -374,7 +374,7 @@ async function registerOperario(req, res){
     }
     catch (err) { 
         console.log("RegisterOperario Error: "+err)
-        return res.status(400).json({accion:'registeroperario', mensaje:'error al validar los datos del operario'})
+        return res.status(400).json({accion:'registeroperario', mensaje:'error al validar los datos del operario\n' + err})
     }
 
     const session = await mongoose.startSession();
@@ -416,7 +416,7 @@ async function removeOperario(req,res){
         return res.status(200).json({accion:'deleteoperario', datos: empresaActualizada}) 
     }catch(err){
         console.log("RemoveOperario Error: " + err)
-        return res.status(500).json({accion:'deleteoperario', mensaje:'error al borrar el solario'}) 
+        return res.status(500).json({accion:'deleteoperario', mensaje:'error al borrar el operario'}) 
     }  
 }
 

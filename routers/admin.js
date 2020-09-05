@@ -18,8 +18,9 @@ router.post('/empresa', verify.authAdministrador, controller.registerEmpresa)
 
 router.delete('/login/:id', verify.authAdministrador, controller.deleteLogin)
 router.delete('/empresa/:id', verify.authAdministrador, controller.deleteEmpresa)
-router.delete('/usuario/:id', verify.authAdministrador, controller.deleteUusario)
+router.delete('/usuario/:id', verify.authAdministrador, controller.deleteUsusario)
 router.delete('/sesion/:id', verify.authAdministrador, controller.deleteSesion)
+router.delete('/solario/:id', verify.authAdministrador, controller.deleteSolario)
 
 //router.post('/gestor', verify.authAdministrador, controller.registerGestor)
 //router.put('/gestor/:id', verify.authGestor, controller.activar)

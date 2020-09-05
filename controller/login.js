@@ -54,7 +54,7 @@ async function login(req, res){
         process.env.TOKEN_SECRETO )
     res.header('auth-token', token)
 
-    res.status(200).send({token, tipo: loginExistente.tipo}) 
+    res.status(200).send({token, type: loginExistente.tipo}) 
 
 }
 

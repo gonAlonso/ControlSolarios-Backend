@@ -20,7 +20,7 @@ router.put('/usuario/:id', verify.authEmpresa, controller.updateUsuario)
 
 router.delete('/delete', verify.authEmpresa, controller.removeEmpresa)
 router.delete('/sesion/:id', verify.authEmpresa, controller.removeSesion)
-router.delete('/operario/:id', verify.authEmpresa, controller.removeSesion)
+router.delete('/operario/:id', verify.authEmpresa, controller.removeOperario)
 router.delete('/solario/:id', verify.authEmpresa, controller.removeSolario)
 router.delete('/usuario/:id', verify.authEmpresa, controller.removeUsuario)
 router.delete('/bono/:usuario', verify.authEmpresa, controller.removeBono)
