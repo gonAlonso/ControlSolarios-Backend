@@ -1,7 +1,9 @@
 const nodemailer = require('nodemailer');
 const Mail = require('nodemailer/lib/mailer');
 const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+//const { process } = require('@hapi/joi/lib/errors');
+
 
 async function sendVerificationEmail(toEmail, id){
 
@@ -26,7 +28,7 @@ async function sendVerificationEmail(toEmail, id){
         from: 'no-reply@isolaris.com', // Sender address
         to: toEmail,         // List of recipients
         subject: 'iSolaris registro empresa', // Subject line
-        html: `<h3>Registro de nueva empresa</h3><p>Haz click en <a href="http://localhost:4200/verify/${token}">este enlace</a> para registrarte</p>`
+        html: `<h3>Registro de nueva empresa</h3><p>Haz click en <a href="${process.env.URL_FRONTEND}verify/${token}">este enlace</a> para registrarte</p>`
     };
 
     await transport.sendMail(message, function(err, info) {

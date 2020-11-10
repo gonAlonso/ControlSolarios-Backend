@@ -19,7 +19,6 @@ const routerLogin = require('./routers/login');
 require("dotenv").config()
 
 //const Login = require('./controller/login')
-console.log("TOKEN", process.env.TOKEN_SECRETO)
 
 var app = express();
 // BodyParser to convert plain text to JSON

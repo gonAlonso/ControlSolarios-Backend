@@ -98,6 +98,7 @@ async function registerEmpresa(req, res){
         await Email.sendVerificationEmail(loginGuardado.email, loginGuardado._id, req);
         
         await session.commitTransaction();
+        empresaGuardada.password = undefined
         res.status(200).json({accion:'register', datos: empresaGuardada})
     }
     catch(err){
@@ -105,7 +106,6 @@ async function registerEmpresa(req, res){
         await session.abortTransaction();
         res.status(500).json({accion:'register', mensaje:'error al guardar los datos de la empresa. Cancelado'}) 
     }
-
 }
 
 
