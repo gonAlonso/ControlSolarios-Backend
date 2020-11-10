@@ -34,9 +34,20 @@
     "mongoose": "^5.10.9",
     "morgan": "^1.10.0",
     "nodemailer": "^6.4.15",
-    "nodemon": "^2.0.5"
+    "nodemon": "^2.0.6"
   },
   "devDependencies": {
     "@angular/cli": "^9.1.12"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "."
+    ],
+    "ignore": [
+      "node_modules/*",
+      ".git/*"
+    ],
+    "ext": "js",
+    "delay": "2500"
   }
 }

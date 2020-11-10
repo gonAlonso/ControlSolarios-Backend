@@ -5,6 +5,7 @@ var controller = require('../controller/login')
 
 
 router.post('/login', controller.login)
-router.post('/loginadmin', controller.loginadmin)
+router.get('/:token', controller.verifyLogin)
+//router.post('/loginadmin', controller.loginadmin)
 
 module.exports = router;

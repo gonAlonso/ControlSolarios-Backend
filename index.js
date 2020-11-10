@@ -3,8 +3,6 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var morgan = require('morgan')
 var cors = require('cors')
-const dotenv = require('dotenv'); // Environment config
-dotenv.config();
 
 const routerEmpresa = require('./routers/empresa')
 //const routerSolario = require('./routers/solario')
@@ -14,9 +12,14 @@ const routerEmpresa = require('./routers/empresa')
 //const routerSesion = require('./routers/sesion')Copy
 const routerGestion = require('./routers/gestion')
 const routerAdmin = require('./routers/admin')
-//const routerLogin = require('./routers/login')
+const routerLogin = require('./routers/login');
+//const { process } = require('@hapi/joi/lib/errors');
+//const dotenv = require('dotenv'); // Environment config
+//dotenv.config();
+require("dotenv").config()
 
-const Login = require('./controller/login')
+//const Login = require('./controller/login')
+console.log("TOKEN", process.env.TOKEN_SECRETO)
 
 var app = express();
 // BodyParser to convert plain text to JSON
@@ -37,11 +40,11 @@ app.use('/gestion', routerGestion)
 app.use('/admin', routerAdmin)
 //app.use('/login', routerLogin)
 
-app.use('/login', Login.login )
-app.use('/', function(req, res){
-    res.status(500).json({accion:'root', mensaje:'Function denied'}) 
-
-})
+//app.use('/login', Login.login )
+//app.use('/verify', Login.verifyLogin )
+app.use('/login', routerLogin )
+app.use('/verify', routerLogin )
+app.use('/', (req, res) => { res.status(500).json({accion:'root', mensaje:'Function denied'}) })
 
 
 const run = async () => {
@@ -51,7 +54,7 @@ const run = async () => {
         {
             useFindAndModify: false,
             useNewUrlParser: true,
-            useUnifiedTopology: true
+            useUnifiedTopology: true,
         }
     );
 

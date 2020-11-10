@@ -3,7 +3,8 @@ var Login = require('../models/login')
 var mongoose = require('mongoose');
 const Joi = require('@hapi/joi')
 const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+//const { process } = require('@hapi/joi/lib/errors');
 
 
 /*********************************************
@@ -15,6 +16,7 @@ const schemaLogin= Joi.object({
     email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: true } }).required(),
     password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
   })
+
 
 /*********************************************
 * Funcionalidades implementadas
@@ -62,4 +64,37 @@ async function login(req, res){
 }
 
 
-module.exports = { login }
+async function verifyLogin(req, res){
+
+    if ( req.params.token == undefined) {
+        console.log('error al validar el token')
+        return res.status(400).json({accion:'login', mensaje:'Token no valido'})
+    }
+
+    try {
+        jwt.verify(req.params.token, process.env.TOKEN_SECRETO)
+    }
+    catch(err) {
+        return res.status(500).json({accion:'verify', mensaje:'error al verificar el registro. Cancelado'}) 
+    }
+    
+    const session = await mongoose.startSession();
+ 
+    try{
+        session.startTransaction();
+        let loginGuardado = await Login.findOne({id:req.body.id})
+        if (!loginGuardado) throw "No se encuentra el usuario"
+        loginGuardado.estado = "ACTIVO"
+        loginGuardado.save()
+        await session.commitTransaction();
+        loginGuardado.password = undefined
+        res.status(200).json({accion:'verify', datos: loginGuardado}) 
+    }catch(err){
+        console.log("Error al verificar el correo: "+ err)
+        await session.abortTransaction();
+        res.status(500).json({accion:'verify', mensaje:'error al guardar los datos de la empresa. Cancelado'}) 
+    }
+ 
+ }
+
+module.exports = { login, verifyLogin }
