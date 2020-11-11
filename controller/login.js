@@ -38,16 +38,23 @@ async function login(req, res){
         email:req.body.email,
         tipo: {$ne: "ELIMINADO"}
     })
-    if(!loginExistente) return res.status(400).json({accion:'login', mensaje:'Error[0] en el email/password. Datos incorrectos'}) 
-   
+    if(!loginExistente) {
+        return res.status(400).json({accion:'login', mensaje:'Error[0] en el email/password. Datos incorrectos'}) 
+    }
    
     // Comprobamos si el usuario esta activo
-    if(loginExistente.estado == "PENDIENTE") return res.status(401).json({accion:'login', mensaje:'Error[1] en el email/password. Datos incorrectos'}) 
-    
+    if(loginExistente.estado != "ACTIVO") {
+        return res.status(401).json({accion:'login', mensaje:'Error[1] en el email/password. Datos incorrectos'}) 
+    }
     // Comprobamos si el password coincide
-    const passwordValido = await bcrypt.compare(req.body.password, loginExistente.password)
-    if(!passwordValido) return res.status(402).json({accion:'login', mensaje:'Error[2] en el email/password. Datos incorrectos'}) 
-  
+    try {
+        const passwordValido = await bcrypt.compare(req.body.password, loginExistente.password)
+        if(!passwordValido) throw "Password invalida"
+    }
+    catch(err) {
+        console.log( "Login error", err)
+        return res.status(402).json({accion:'login', mensaje:'Error[2] en el email/password. Datos incorrectos'}) 
+    }
     // Creamos el token jwt (jsonwebtoken)  Ver web: https://jwt.io/
     const token = jwt.sign( 
         {
@@ -70,22 +77,30 @@ async function verifyLogin(req, res){
         console.log('error al validar el token')
         return res.status(400).json({accion:'login', mensaje:'Token no valido'})
     }
+    let usuario
 
     try {
-        jwt.verify(req.params.token, process.env.TOKEN_SECRETO)
+        usuario = await jwt.verify(req.params.token, process.env.TOKEN_SECRETO)
+        //TODO: CHECK EXPIRED DATE
+        //console.log("Usuario [login:1]", usuario)
     }
     catch(err) {
+        console.log("Error:", err)
         return res.status(500).json({accion:'verify', mensaje:'error al verificar el registro. Cancelado'}) 
     }
     
     const session = await mongoose.startSession();
- 
+    
     try{
         session.startTransaction();
-        let loginGuardado = await Login.findOne({id:req.body.id})
+        let loginGuardado = await Login.findOne({_id: usuario._id})
         if (!loginGuardado) throw "No se encuentra el usuario"
+        //console.log("Usuario [verifyLogin]:", JSON.stringify(loginGuardado))
+
+        if (loginGuardado.estado == "ACTIVO") throw "Usuario ya activo"
+
         loginGuardado.estado = "ACTIVO"
-        loginGuardado.save()
+        await loginGuardado.save()
         await session.commitTransaction();
         loginGuardado.password = undefined
         res.status(200).json({accion:'verify', datos: loginGuardado}) 

@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 //const { process } = require('@hapi/joi/lib/errors');
 
 
-async function sendVerificationEmail(toEmail, id){
+async function sendVerificationEmail(toEmail, id, nombre){
 
     transport = nodemailer.createTransport({
         host: 'smtp.mailtrap.io',
@@ -15,6 +15,7 @@ async function sendVerificationEmail(toEmail, id){
             pass: '43006dbca98d07'
         }
     })
+    console.log("ID[email]:", id)
 
     const token = jwt.sign( {
             _id: id,
@@ -28,7 +29,7 @@ async function sendVerificationEmail(toEmail, id){
         from: 'no-reply@isolaris.com', // Sender address
         to: toEmail,         // List of recipients
         subject: 'iSolaris registro empresa', // Subject line
-        html: `<h3>Registro de nueva empresa</h3><p>Haz click en <a href="${process.env.URL_FRONTEND}verify/${token}">este enlace</a> para registrarte</p>`
+        html: `<h3>Registro de nueva empresa</h3><p><em>${nombre}</em> haz click en <a href="${process.env.URL_FRONTEND}verify/${token}">este enlace</a> para registrarte</p>`
     };
 
     await transport.sendMail(message, function(err, info) {

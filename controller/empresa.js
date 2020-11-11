@@ -90,31 +90,34 @@ async function registerEmpresa(req, res){
 
     try{
         session.startTransaction();
-        let loginGuardado = await loginDoc.save({upsert:false, session})
+        let loginGuardado = await loginDoc.save( { upsert:false, session } )
         empresaDoc.login = loginGuardado
-        let empresaGuardada = await empresaDoc.save({upsert:false, session})
+        let empresaGuardada = await empresaDoc.save( { upsert:false, session } )
         loginGuardado.referencia = empresaGuardada
         await loginGuardado.save( { session } )
-        await Email.sendVerificationEmail(loginGuardado.email, loginGuardado._id, req);
+        await Email.sendVerificationEmail(
+            loginGuardado.email,
+            loginGuardado._id,
+            empresaGuardada.nombre);
         
         await session.commitTransaction();
         empresaGuardada.password = undefined
-        res.status(200).json({accion:'register', datos: empresaGuardada})
+        res.status( 200) .json( { accion:'register', datos: empresaGuardada } )
     }
     catch(err){
         console.log("Error de registro de empresa: "+ err)
         await session.abortTransaction();
-        res.status(500).json({accion:'register', mensaje:'error al guardar los datos de la empresa. Cancelado'}) 
+        res.status(500).json( { accion:'register', mensaje:'error al guardar los datos de la empresa. Cancelado' } )
     }
 }
 
 
-async function registerEstado(req, res){
-    let estado = new EstadosEmpresaSchema( req.body)
-    return res.status(200).json({accion:'registerestado', mensaje: "No implementado"}) 
+async function registerEstado( req, res ){
+    let estado = new EstadosEmpresaSchema( req.body )
+    return res.status(200).json( { accion:'registerestado', mensaje: "No implementado" } )
 }
 
-async function updateEmpresa(req,res){
+async function updateEmpresa( req, res ){
 
     // Validar datos de la empresa
     try {
