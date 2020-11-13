@@ -12,6 +12,11 @@ let LoginSchema = Schema(
             enum: ["INVITADO","USUARIO", "EMPRESA", "GESTOR", "ADMINISTRADOR", "ELIMINADO"],
             default: "INVITADO"
         },
+        estado: {
+            type: String,
+            enum: ["ACTIVO", "PENDIENTE", "ELIMINADO"],
+            default: "PENDIENTE"
+        },
         referencia: {type: Schema.ObjectId, ref: 'Datos'},
     }
 )

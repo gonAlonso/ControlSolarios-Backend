@@ -46,9 +46,17 @@ app.use('/', function(req, res){
 
 const run = async () => {
     console.log(`Conectando a la base de datos`)
-    await mongoose.connect(process.env.URL_BASEDATOS, { useFindAndModify: false, useNewUrlParser: true, useUnifiedTopology: true })
+    await mongoose.connect(
+        process.env.URL_BASEDATOS,
+        {
+            useFindAndModify: false,
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        }
+    );
+
     console.log(`Iniciando servidor`)
-    await app.listen(process.env.PUERTO_SERVIDOR)
+    await app.listen(process.env.PUERTO_SERVIDOR, '0.0.0.0')
     console.log(`Servidor [${process.env.PUERTO_SERVIDOR}] y base de datos arrancados`)
 }
 

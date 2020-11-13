@@ -7,7 +7,7 @@ let SesionSchema = Schema(
         empresa: {type: Schema.ObjectId, ref:'Empresa'},
         usuario: {type: Schema.ObjectId, ref:'Usuario'},
         solario: {type: Schema.ObjectId, ref:'Solario'},
-        operatio: {type: Schema.ObjectId, ref:'Operario'},
+        operario: {type: Schema.ObjectId, ref:'Operario'},
         energia: Number,
         duracion: Number,
         fecha: {
@@ -16,6 +16,5 @@ let SesionSchema = Schema(
         }
     }
 )
-
 
 module.exports = mongoose.model('Sesion', SesionSchema)

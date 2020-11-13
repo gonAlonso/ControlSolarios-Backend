@@ -12,7 +12,8 @@ const schemaRegisterEmpresa = Joi.object({
     tlf: Joi.string().min(9).required(),
     direccion: Joi.string().min(10).max(255).required(),
     email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: true }}).required(),
-    password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{10,30}$')).required()
+    password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{10,30}$')).required(),
+    tipoBono: Joi.string().valid("MINUTOS", "SESIONES").optional()
   })
 
 const schemaRemoveEmpresa = Joi.object({
@@ -26,7 +27,8 @@ const schemaUpdateEmpresa = Joi.object({
     nombreFiscal: Joi.string().min(1).max(255).optional(),
     cif: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{9}$' )).optional(),
     tlf: Joi.string().min(9).optional(),
-    direccion: Joi.string().min(10).max(255).optional()
+    direccion: Joi.string().min(10).max(255).optional(),
+    tipoBono: Joi.string().valid("MINUTOS", "SESIONES").optional()
   })
 
 const schemaRegisterOperario = Joi.object({
@@ -58,7 +60,7 @@ const schemaUpdateSolario = Joi.object({
   })
 
 const schemaRegisterSesion = Joi.object({
-    energia: Joi.number().min(1).max(500).required(),
+    energia: Joi.number().min(1).max(2000).required(),
     duracion: Joi.number().min(1).max(60).required(),
     solario: Joi.string().required(),
     pin: Joi.number().min(2).max(99999999).required(),

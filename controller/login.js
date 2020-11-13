@@ -36,12 +36,15 @@ async function login(req, res){
         email:req.body.email,
         tipo: {$ne: "ELIMINADO"}
     })
-    if(!loginExistente) return res.status(400).json({accion:'login', mensaje:'Error[1] en el email/password. Datos incorrectos'}) 
+    if(!loginExistente) return res.status(400).json({accion:'login', mensaje:'Error[0] en el email/password. Datos incorrectos'}) 
    
    
+    // Comprobamos si el usuario esta activo
+    if(loginExistente.estado == "PENDIENTE") return res.status(401).json({accion:'login', mensaje:'Error[1] en el email/password. Datos incorrectos'}) 
+    
     // Comprobamos si el password coincide
     const passwordValido = await bcrypt.compare(req.body.password, loginExistente.password)
-    if(!passwordValido) return res.status(400).json({accion:'login', mensaje:'Error[2] en el email/password. Datos incorrectos'}) 
+    if(!passwordValido) return res.status(402).json({accion:'login', mensaje:'Error[2] en el email/password. Datos incorrectos'}) 
   
     // Creamos el token jwt (jsonwebtoken)  Ver web: https://jwt.io/
     const token = jwt.sign( 

@@ -8,6 +8,7 @@ var Usuario = require('../models/usuario')
 var Bono = require('../models/bono')
 var Operario = require('../models/operario')
 var Sesion = require('../models/sesion')
+var sendVerificationEmail = require('../utils/email')
 
 var mongoose = require('mongoose');
 const Joi = require('@hapi/joi')
@@ -32,6 +33,77 @@ const {
 * Funcionalidades implementadas
 *********************************************/
 async function registerEmpresa(req, res){
+   try {
+        const { error, value } = await schemaRegisterEmpresa.validateAsync(req.body)
+    }
+    catch (err) { 
+        return res.status(400).json({accion:'register', mensaje:'error al validar los datos de la empresa: '+err}) 
+    }
+    
+    try {
+        let loginExistente = await Login.findOne({email:req.body.email})
+        if(loginExistente) throw "Login ya existe"
+    }
+    catch (err) { 
+        console.log('Error iesperado en el registro: '+err) 
+        return res.status(400).json({accion:'register', mensaje:'Error en los datos de empresa. Login ya existe'}) 
+    }
+
+    // Comprobar que la empresa no existe antes
+    try {
+        let empresaExistente = await Empresa.findOne({cif:req.body.cif})
+        if(empresaExistente) throw "CIF ya existe"
+    }
+    catch (err) { 
+        console.log('Error inesperado en el registro: '+err) 
+        return res.status(400).json({accion:'register', mensaje:'Error en los datos de empresa. CIF ya existe'}) 
+    }
+   
+    // Creamos el hash del password (nunca debemos guardar el password en texto claro)
+    const salt = await bcrypt.genSalt(10)
+    const hashPassword = await bcrypt.hash(req.body.password, salt)
+
+    const empresaDoc = new Empresa({
+        nombre: req.body.nombre,
+        cif: req.body.cif,
+        tlf: req.body.tlf,
+        nombreFiscal: req.body.nombreFiscal,
+        direccion: req.body.direccion,
+        fechaRegistro: {type: Date, default: Date.now},
+        estado: "REGISTRADO",
+        tipoBono: req.body.tipoBono,
+        fechaRegistro: new Date()
+    })
+
+    const loginDoc = new Login({
+        email: req.body.email,
+        password: hashPassword,
+        tipo: "EMPRESA"
+    })
+    
+    const session = await mongoose.startSession();
+    try{
+        session.startTransaction();
+        let loginGuardado = await loginDoc.save({upsert:false})
+        empresaDoc.login = loginGuardado
+        let empresaGuardada = await empresaDoc.save({upsert:false})
+        loginGuardado.referencia = empresaGuardada
+        await loginGuardado.save()
+        await sendVerificationEmail(loginGuardado.email, loginGuardado._id, req);
+        
+        await session.commitTransaction();
+        res.status(200).json({accion:'register', datos: empresaGuardada}) 
+    }catch(err){
+        console.log("Error de registro de empresa: "+ err)
+        await session.abortTransaction();
+        res.status(500).json({accion:'register', mensaje:'error al guardar los datos de la empresa. Cancelado'}) 
+    }
+
+
+}
+
+
+async function verifyEmpresa(req, res){
    try {
         const { error, value } = await schemaRegisterEmpresa.validateAsync(req.body)
     }
@@ -566,14 +638,15 @@ async function registerBono(req, res){
         bonoNuevo.restante = bonoNuevo.valor
         let idUsuario = req.params.id
 
-        /*
-        let usuarioActualizado = await Usuario.findOneAndUpdate(
-            {_id: idUsuario },
-            {$push: {bonos: bonoNuevo}},
-            {new:true}).session(session)*/
         let usuarioBuscado = await Usuario.findOne({_id: idUsuario }).session(session)
         if(!usuarioBuscado) throw "No se ha encontrado el usaurio"
-        usuarioBuscado.bono = bonoNuevo
+        if(usuarioBuscado.bono==undefined) {
+            usuarioBuscado.bono = bonoNuevo
+        }
+        else {
+            usuarioBuscado.bono.restante += bonoNuevo.valor
+            usuarioBuscado.bono.fechaLimite = bonoNuevo.fechaLimite
+        }
         await usuarioBuscado.save()
 
         await session.commitTransaction()
