@@ -17,8 +17,8 @@ let UsuarioSchema = Schema(
         },
         estado: {
             type: String,
-            enum: ["ACTIVO", "BAJA", "ELIMINADO", "IMPAGO"],
-            default: "ACTIVO"
+            enum: ["PENDIENTE","ACTIVO", "BAJA", "ELIMINADO", "IMPAGO"],
+            default: "PENDIENTE"
         },
         //bonos : [Bono]
         bono: {type: Bono, default: null}

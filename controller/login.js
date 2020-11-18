@@ -1,5 +1,6 @@
 
 var Login = require('../models/login')
+var Usuario = require('../models/usuario')
 var mongoose = require('mongoose');
 const Joi = require('@hapi/joi')
 const bcrypt = require('bcrypt')
@@ -83,6 +84,7 @@ async function verifyLogin(req, res){
         usuario = await jwt.verify(req.params.token, process.env.TOKEN_SECRETO)
         //TODO: CHECK EXPIRED DATE
         //console.log("Usuario [login:1]", usuario)
+        console.log( "Usuario:", JSON.stringify( usuario ) )
     }
     catch(err) {
         console.log("Error:", err)
@@ -93,7 +95,15 @@ async function verifyLogin(req, res){
     
     try{
         session.startTransaction();
-        let loginGuardado = await Login.findOne({_id: usuario._id})
+        let loginGuardado
+        if (usuario.type == "empresa") {
+            console.log("Tipo usuario")
+            loginGuardado = await Login.findOne({_id: usuario._id})
+        }
+        else if (usuario.type == "usuario") {
+            console.log("Tipo empresa")
+            loginGuardado = await Usuario.findOne({_id: usuario._id})
+        }
         if (!loginGuardado) throw "No se encuentra el usuario"
         //console.log("Usuario [verifyLogin]:", JSON.stringify(loginGuardado))
 

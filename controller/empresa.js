@@ -95,10 +95,14 @@ async function registerEmpresa(req, res){
         let empresaGuardada = await empresaDoc.save( { upsert:false, session } )
         loginGuardado.referencia = empresaGuardada
         await loginGuardado.save( { session } )
+
         await Email.sendVerificationEmail(
-            loginGuardado.email,
-            loginGuardado._id,
-            empresaGuardada.nombre);
+        {
+            email: loginGuardado.email,
+            id: loginGuardado._id,
+            nombre: loginGuardado.nombre,
+            type: "empresa"
+        })
         
         await session.commitTransaction();
         empresaGuardada.password = undefined
@@ -481,7 +485,16 @@ async function registerUsuario(req, res){
         if(usuarioBuscado) throw "Usuario ya registrado"
 
         // Guardamos la puntuacion
-        let usuarioGuardado = await usuarioNuevo.save();
+        let usuarioGuardado = await usuarioNuevo.save( {session} );
+
+        await Email.sendVerificationEmail(
+        {
+            email: usuarioGuardado.email,
+            id: usuarioGuardado._id,
+            nombre: usuarioGuardado.nombre,
+            type: "usuario"
+        })
+
         await session.commitTransaction();
         res.status(200).json({accion:'save', datos: usuarioGuardado}) 
     }catch(err){
