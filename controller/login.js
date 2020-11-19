@@ -82,13 +82,10 @@ async function verifyLogin(req, res){
 
     try {
         usuario = await jwt.verify(req.params.token, process.env.TOKEN_SECRETO)
-        //TODO: CHECK EXPIRED DATE
-        //console.log("Usuario [login:1]", usuario)
-        console.log( "Usuario:", JSON.stringify( usuario ) )
     }
     catch(err) {
-        console.log("Error:", err)
-        return res.status(500).json({accion:'verify', mensaje:'error al verificar el registro. Cancelado'}) 
+        console.log("Error: TOKEN EXPIRED")
+        return res.status(500).json({accion:'verify', mensaje:'error al verificar el registro. Codigo caducado. Cancelado'}) 
     }
     
     const session = await mongoose.startSession();
@@ -104,8 +101,8 @@ async function verifyLogin(req, res){
             console.log("Tipo empresa")
             loginGuardado = await Usuario.findOne({_id: usuario._id})
         }
+
         if (!loginGuardado) throw "No se encuentra el usuario"
-        //console.log("Usuario [verifyLogin]:", JSON.stringify(loginGuardado))
 
         if (loginGuardado.estado == "ACTIVO") throw "Usuario ya activo"
 
@@ -114,7 +111,8 @@ async function verifyLogin(req, res){
         await session.commitTransaction();
         loginGuardado.password = undefined
         res.status(200).json({accion:'verify', datos: loginGuardado}) 
-    }catch(err){
+    }
+    catch(err){
         console.log("Error al verificar el correo: "+ err)
         await session.abortTransaction();
         res.status(500).json({accion:'verify', mensaje:'error al guardar los datos de la empresa. Cancelado'}) 

@@ -26,7 +26,7 @@ function authEmpresa(req,res,next){
         req.user = verificado
         //console.log(verificado)
     }catch(err){
-        console.log("Acceso denegago: "+err)
+        console.log("Acceso denegago: ")
         return res.status(401).send(denegado)
     }
     next();
