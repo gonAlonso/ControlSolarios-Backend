@@ -36,13 +36,16 @@ async function sendVerificationEmail({email, id, nombre, type}){
         url: process.env.URL_FRONTEND
     });
 
-
     const message = {
-        from: 'no-reply@isolaris.com', // Sender address
-        to: email,         // List of recipients
-        subject: 'iSolaris :: Confirmar registro', // Subject line
-        //html: `<h3>Registro en iSolaris</h3><p><em>${nombre}</em> haz click en <a href="${process.env.URL_FRONTEND}verify/${token}">este enlace</a> para verificar tu email</p>`
-        html: data
+        from: 'no-reply@isolaris.com',
+        to: email,
+        subject: 'iSolaris :: Confirmar registro',
+        html: data,
+        attachments: [{
+            filename: 'logo.png',
+            path: __dirname +'/logo.png',
+            cid: 'logo' 
+       }]
     };
 
     await transport.sendMail(message, function(err, info) {
