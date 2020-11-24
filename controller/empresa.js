@@ -100,7 +100,7 @@ async function registerEmpresa(req, res){
         {
             email: loginGuardado.email,
             id: loginGuardado._id,
-            nombre: loginGuardado.nombre,
+            nombre: empresaGuardada.nombre,
             type: "empresa"
         })
         
